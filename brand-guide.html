@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aaron Kilburg — Brand Guide</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;500;600;700;800;900&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dark:        #0D1B2A;
+      --navy:        #1B3A5C;
+      --steel:       #2D5A7E;
+      --steel-light: #4A7FA0;
+      --amber:       #C8822A;
+      --amber-light: #E09A46;
+      --rust:        #9C4E1E;
+      --cream:       #F4EAD5;
+      --off-white:   #FAF7F2;
+      --warm-gray:   #8B8177;
+      --text-dark:   #1A1A1A;
+      --font-display: 'Barlow Condensed', sans-serif;
+      --font-body:    'Lora', serif;
+      --font-sans:    'Barlow', sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--off-white);
+      color: var(--text-dark);
+      font-family: var(--font-body);
+      line-height: 1.7;
+    }
+
+    /* ─── COVER ─────────────────────────────────────── */
+    .cover {
+      min-height: 100vh;
+      background: var(--dark);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 4rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .cover::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(200,130,42,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(200,130,42,0.06) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    .cover-label {
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    .cover-name {
+      font-family: var(--font-display);
+      font-size: clamp(5rem, 14vw, 12rem);
+      font-weight: 900;
+      line-height: 0.88;
+      color: #fff;
+      letter-spacing: -0.01em;
+      position: relative;
+    }
+    .cover-name span { color: var(--amber); }
+    .cover-divider {
+      width: 80px;
+      height: 3px;
+      background: var(--amber);
+      margin: 2.5rem auto;
+      position: relative;
+    }
+    .cover-sub {
+      font-family: var(--font-display);
+      font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+      font-weight: 300;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+      position: relative;
+    }
+    .cover-meta {
+      position: absolute;
+      bottom: 2rem;
+      right: 2.5rem;
+      font-family: var(--font-sans);
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.25);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    /* ─── SECTION SHELL ──────────────────────────────── */
+    .guide-section {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 6rem 2.5rem;
+    }
+    .guide-section + .guide-section {
+      border-top: 1px solid rgba(0,0,0,0.08);
+    }
+    .section-label {
+      font-family: var(--font-sans);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 0.75rem;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 800;
+      line-height: 1;
+      color: var(--dark);
+      margin-bottom: 3rem;
+    }
+
+    /* ─── COLORS ─────────────────────────────────────── */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 1.5rem;
+    }
+    .color-card { }
+    .color-swatch {
+      height: 120px;
+      border-radius: 6px;
+      margin-bottom: 0.85rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .color-swatch::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%);
+    }
+    .color-name {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.15rem;
+      color: var(--dark);
+    }
+    .color-role {
+      font-family: var(--font-sans);
+      font-size: 0.7rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--warm-gray);
+      margin-bottom: 0.2rem;
+    }
+    .color-hex {
+      font-family: 'Courier New', monospace;
+      font-size: 0.8rem;
+      color: #888;
+    }
+
+    /* ─── TYPOGRAPHY ─────────────────────────────────── */
+    .type-specimens {
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+    }
+    .type-specimen {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 2rem;
+      align-items: start;
+      padding: 2rem;
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+    .type-meta { }
+    .type-label {
+      font-family: var(--font-sans);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 0.4rem;
+    }
+    .type-name {
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--dark);
+      margin-bottom: 0.2rem;
+    }
+    .type-spec {
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      color: var(--warm-gray);
+      line-height: 1.6;
+    }
+    .type-example-hero {
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 7vw, 6rem);
+      font-weight: 900;
+      line-height: 0.9;
+      color: var(--dark);
+    }
+    .type-example-heading {
+      font-family: var(--font-display);
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 700;
+      line-height: 1.05;
+      color: var(--dark);
+    }
+    .type-example-sub {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--steel);
+    }
+    .type-example-body {
+      font-family: var(--font-body);
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--text-dark);
+      max-width: 500px;
+    }
+    .type-example-quote {
+      font-family: var(--font-body);
+      font-size: 1.35rem;
+      font-style: italic;
+      line-height: 1.6;
+      color: var(--navy);
+    }
+    .type-example-label {
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--amber);
+    }
+
+    /* ─── BRAND VOICE ─────────────────────────────────── */
+    .voice-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+    .voice-card {
+      padding: 2rem;
+      border-radius: 8px;
+    }
+    .voice-card.is { background: var(--dark); }
+    .voice-card.not { background: rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.08); }
+    .voice-card-label {
+      font-family: var(--font-sans);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+    .voice-card.is .voice-card-label { color: var(--amber); }
+    .voice-card.not .voice-card-label { color: #999; }
+    .voice-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .voice-list li {
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .voice-card.is .voice-list li { color: rgba(255,255,255,0.85); }
+    .voice-card.not .voice-list li { color: #777; text-decoration: line-through; }
+    .voice-list li::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .voice-card.is .voice-list li::before { background: var(--amber); }
+    .voice-card.not .voice-list li::before { background: #ccc; }
+
+    /* ─── TAGLINES ────────────────────────────────────── */
+    .tagline-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .tagline-item {
+      padding: 2rem 2.5rem;
+      border-radius: 8px;
+      border-left: 4px solid transparent;
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.06);
+      transition: transform 0.2s;
+    }
+    .tagline-item.primary {
+      background: var(--dark);
+      border: none;
+      border-left: 4px solid var(--amber);
+    }
+    .tagline-text {
+      font-family: var(--font-display);
+      font-size: clamp(1.4rem, 3vw, 2.2rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 0.5rem;
+    }
+    .tagline-item.primary .tagline-text { color: #fff; }
+    .tagline-item:not(.primary) .tagline-text { color: var(--dark); }
+    .tagline-note {
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.45);
+    }
+    .tagline-item:not(.primary) .tagline-note { color: var(--warm-gray); }
+
+    /* ─── VALUES ──────────────────────────────────────── */
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1.5rem;
+    }
+    .value-card {
+      padding: 2.5rem 2rem;
+      background: var(--dark);
+      border-radius: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+    .value-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--amber);
+    }
+    .value-number {
+      font-family: var(--font-display);
+      font-size: 3.5rem;
+      font-weight: 900;
+      color: rgba(255,255,255,0.08);
+      line-height: 1;
+      margin-bottom: 1rem;
+    }
+    .value-name {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--amber);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.75rem;
+    }
+    .value-desc {
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      line-height: 1.7;
+      color: rgba(255,255,255,0.6);
+    }
+
+    /* ─── FOOTER ─────────────────────────────────────── */
+    .guide-footer {
+      background: var(--dark);
+      padding: 3rem 2.5rem;
+      text-align: center;
+    }
+    .guide-footer p {
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.1em;
+    }
+
+    @media (max-width: 700px) {
+      .type-specimen { grid-template-columns: 1fr; }
+      .voice-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- COVER -->
+  <div class="cover">
+    <div class="cover-label">Brand Identity Guide — 2026</div>
+    <div class="cover-name">AARON<br><span>KILBURG</span></div>
+    <div class="cover-divider"></div>
+    <div class="cover-sub">Bridge Builder &nbsp;·&nbsp; Partner &nbsp;·&nbsp; Community Servant</div>
+    <div class="cover-meta">Version 1.0 — March 2026</div>
+  </div>
+
+  <!-- BRAND OVERVIEW -->
+  <section class="guide-section" style="background: var(--off-white);">
+    <div class="section-label">01 — Overview</div>
+    <div class="section-title">Who Is Aaron Kilburg?</div>
+    <p style="font-family: var(--font-body); font-size: 1.1rem; line-height: 1.9; max-width: 700px; color: #333; margin-bottom: 1.5rem;">
+      Aaron Kilburg is a Midwest commercial sales professional, community leader, and educator who bridges two worlds most people never occupy simultaneously: the engineering design room and the job-site floor. His brand is built on one word — <strong>trust</strong> — and one rare quality: authenticity that people can actually feel.
+    </p>
+    <p style="font-family: var(--font-body); font-size: 1.1rem; line-height: 1.9; max-width: 700px; color: #333;">
+      He is not a salesman. He is a partner, a teacher, a connector, and a servant leader. His professional and volunteer lives reinforce the same core truth: people who feel genuinely seen and supported will do extraordinary things.
+    </p>
+  </section>
+
+  <!-- COLORS -->
+  <section class="guide-section">
+    <div class="section-label">02 — Color Palette</div>
+    <div class="section-title">Industrial Warmth</div>
+    <div class="color-grid">
+      <div class="color-card">
+        <div class="color-swatch" style="background: #0D1B2A;"></div>
+        <div class="color-name">Steel Night</div>
+        <div class="color-role">Primary Dark</div>
+        <div class="color-hex">#0D1B2A</div>
+      </div>
+      <div class="color-card">
+        <div class="color-swatch" style="background: #1B3A5C;"></div>
+        <div class="color-name">Deep Navy</div>
+        <div class="color-role">Secondary Dark</div>
+        <div class="color-hex">#1B3A5C</div>
+      </div>
+      <div class="color-card">
+        <div class="color-swatch" style="background: #2D5A7E;"></div>
+        <div class="color-name">Steel Blue</div>
+        <div class="color-role">Supporting Dark</div>
+        <div class="color-hex">#2D5A7E</div>
+      </div>
+      <div class="color-card">
+        <div class="color-swatch" style="background: #C8822A;"></div>
+        <div class="color-name">Copper Amber</div>
+        <div class="color-role">Primary Accent</div>
+        <div class="color-hex">#C8822A</div>
+      </div>
+      <div class="color-card">
+        <div class="color-swatch" style="background: #E09A46;"></div>
+        <div class="color-name">Wheat Gold</div>
+        <div class="color-role">Warm Highlight</div>
+        <div class="color-hex">#E09A46</div>
+      </div>
+      <div class="color-card">
+        <div class="color-swatch" style="background: #9C4E1E;"></div>
+        <div class="color-name">Rust</div>
+        <div class="color-role">Deep Accent</div>
+        <div class="color-hex">#9C4E1E</div>
+      </div>
+      <div class="color-card">
+        <div class="color-swatch" style="background: #F4EAD5; border: 1px solid #e5d8be;"></div>
+        <div class="color-name">Field Cream</div>
+        <div class="color-role">Light Background</div>
+        <div class="color-hex">#F4EAD5</div>
+      </div>
+      <div class="color-card">
+        <div class="color-swatch" style="background: #FAF7F2; border: 1px solid #e5d8be;"></div>
+        <div class="color-name">Off White</div>
+        <div class="color-role">Page Base</div>
+        <div class="color-hex">#FAF7F2</div>
+      </div>
+    </div>
+    <p style="margin-top: 2.5rem; font-family: var(--font-sans); font-size: 0.85rem; color: var(--warm-gray); max-width: 600px; line-height: 1.7;">
+      The palette is named <strong>"Industrial Warmth"</strong> — a deliberate tension that mirrors Aaron himself. Steel, navy, and deep blue reference the engineering and infrastructure world where he works. Copper amber and field cream reference his Iowa farm roots and the warmth people feel when they're in a room with him.
+    </p>
+  </section>
+
+  <!-- TYPOGRAPHY -->
+  <section class="guide-section" style="background: var(--off-white);">
+    <div class="section-label">03 — Typography</div>
+    <div class="section-title">The Type System</div>
+    <div class="type-specimens">
+
+      <div class="type-specimen">
+        <div class="type-meta">
+          <div class="type-label">Display / Hero</div>
+          <div class="type-name">Barlow Condensed</div>
+          <div class="type-spec">Weight: 900<br>Use: Page headings, name treatment, impact statements</div>
+        </div>
+        <div class="type-example-hero">BRIDGE<br>BUILDER.</div>
+      </div>
+
+      <div class="type-specimen">
+        <div class="type-meta">
+          <div class="type-label">Section Heading</div>
+          <div class="type-name">Barlow Condensed</div>
+          <div class="type-spec">Weight: 700–800<br>Use: Section titles, card headings</div>
+        </div>
+        <div class="type-example-heading">The Work That<br>Lasts.</div>
+      </div>
+
+      <div class="type-specimen">
+        <div class="type-meta">
+          <div class="type-label">Sub-Heading / Label</div>
+          <div class="type-name">Barlow Condensed</div>
+          <div class="type-spec">Weight: 500, Uppercase<br>Use: Category labels, section identifiers</div>
+        </div>
+        <div class="type-example-sub">Midwest Commercial Sales &nbsp;·&nbsp; Community Leadership</div>
+      </div>
+
+      <div class="type-specimen">
+        <div class="type-meta">
+          <div class="type-label">Body Copy</div>
+          <div class="type-name">Lora</div>
+          <div class="type-spec">Weight: 400–500<br>Use: Paragraphs, descriptions, narrative</div>
+        </div>
+        <div class="type-example-body">Aaron doesn't walk into a room to sell you something. He walks in genuinely curious about what you're trying to build — and that makes all the difference. People can feel the difference between a pitch and a conversation.</div>
+      </div>
+
+      <div class="type-specimen">
+        <div class="type-meta">
+          <div class="type-label">Pull Quote</div>
+          <div class="type-name">Lora Italic</div>
+          <div class="type-spec">Weight: 500–600 Italic<br>Use: Highlighted quotes, testimonials</div>
+        </div>
+        <div class="type-example-quote">"People can smell a phony. So I never try to be one."</div>
+      </div>
+
+      <div class="type-specimen">
+        <div class="type-meta">
+          <div class="type-label">UI / Navigation</div>
+          <div class="type-name">Barlow</div>
+          <div class="type-spec">Weight: 600, Uppercase, Tracked<br>Use: Buttons, nav, metadata labels</div>
+        </div>
+        <div class="type-example-label">Connect &nbsp;·&nbsp; Learn More &nbsp;·&nbsp; View Project</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- BRAND VOICE -->
+  <section class="guide-section">
+    <div class="section-label">04 — Brand Voice</div>
+    <div class="section-title">How Aaron Speaks</div>
+    <div class="voice-grid">
+      <div class="voice-card is">
+        <div class="voice-card-label">The Voice Is...</div>
+        <ul class="voice-list">
+          <li>Direct and unhurried</li>
+          <li>Genuinely curious</li>
+          <li>Credible without being clinical</li>
+          <li>Warm but never saccharine</li>
+          <li>Confident without arrogance</li>
+          <li>Grounded in real experience</li>
+          <li>Storytelling-first</li>
+          <li>Self-aware and honest about growth edges</li>
+        </ul>
+      </div>
+      <div class="voice-card not">
+        <div class="voice-card-label">The Voice Is Never...</div>
+        <ul class="voice-list">
+          <li>Salesy or pitch-driven</li>
+          <li>Corporate buzzword-heavy</li>
+          <li>Performatively humble</li>
+          <li>Politically polarizing</li>
+          <li>Boastful or name-dropping</li>
+          <li>Vague or non-committal</li>
+          <li>Distant or formal</li>
+          <li>Self-promotional at others' expense</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAGLINES -->
+  <section class="guide-section" style="background: var(--off-white);">
+    <div class="section-label">05 — Key Messages</div>
+    <div class="section-title">Taglines & Positioning</div>
+    <div class="tagline-list">
+      <div class="tagline-item primary">
+        <div class="tagline-text">Bridge Builder.</div>
+        <div class="tagline-note">Primary tagline — captures the essence: connecting engineering to the field, community to its values.</div>
+      </div>
+      <div class="tagline-item">
+        <div class="tagline-text">"I speak engineer. I speak country."</div>
+        <div class="tagline-note">His own words — use as a secondary positioning line or pull quote.</div>
+      </div>
+      <div class="tagline-item">
+        <div class="tagline-text">Partnerships, Not Pitches.</div>
+        <div class="tagline-note">Professional positioning — articulates how he approaches commercial relationships.</div>
+      </div>
+      <div class="tagline-item">
+        <div class="tagline-text">From Blueprint to Build.</div>
+        <div class="tagline-note">Professional range — speaks to his unique ability to work across the full project lifecycle.</div>
+      </div>
+      <div class="tagline-item">
+        <div class="tagline-text">The Work of Children Is Not Political.</div>
+        <div class="tagline-note">Community/volunteer positioning — his school board philosophy in a single powerful line.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BRAND VALUES -->
+  <section class="guide-section">
+    <div class="section-label">06 — Brand Values</div>
+    <div class="section-title">What He Stands For</div>
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="value-number">01</div>
+        <div class="value-name">Curiosity</div>
+        <div class="value-desc">Genuine interest in people — their goals, their problems, their world — is the engine behind everything Aaron does.</div>
+      </div>
+      <div class="value-card">
+        <div class="value-number">02</div>
+        <div class="value-name">Accountability</div>
+        <div class="value-desc">"As long as it's out in the world, I need to have some accountability." Products, promises, relationships — he owns them all.</div>
+      </div>
+      <div class="value-card">
+        <div class="value-number">03</div>
+        <div class="value-name">Partnership</div>
+        <div class="value-desc">Not transactions. Not pitches. Real, sustained partnerships built on shared goals and mutual trust.</div>
+      </div>
+      <div class="value-card">
+        <div class="value-number">04</div>
+        <div class="value-name">Service</div>
+        <div class="value-desc">In his career, in his community, in his relationships — Aaron shows up. His father modeled it. He lives it.</div>
+      </div>
+      <div class="value-card">
+        <div class="value-number">05</div>
+        <div class="value-name">Bridging</div>
+        <div class="value-desc">Between engineering and the field. Between policy and people. Between different worldviews and a shared table.</div>
+      </div>
+      <div class="value-card">
+        <div class="value-number">06</div>
+        <div class="value-name">Legacy</div>
+        <div class="value-desc">Rush Hospital. Ryan Field. 500+ apprentices trained each year. He builds things that outlast the conversation.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="guide-footer">
+    <p>Aaron Kilburg Brand Guide &nbsp;·&nbsp; Version 1.0 — March 2026 &nbsp;·&nbsp; Confidential</p>
+  </footer>
+
+</body>
+</html>
