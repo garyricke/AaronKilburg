@@ -249,14 +249,68 @@
     transition: border-color var(--transition), color var(--transition), transform var(--transition);
   }
   .btn-outline:hover { border-color: var(--amber); color: var(--amber); transform: translateY(-2px); }
-  .hero-image-col { position: relative; z-index: 2; display: flex; justify-content: center; align-items: center; padding: 6rem 0; }
+  .hero-image-col { position: relative; z-index: 2; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 6rem 0; gap: 1.75rem; }
   .hero-photo-wrap { position: relative; opacity: 0; animation: fadeIn 1s 1.3s forwards; }
   .hero-photo-ring {
-    width: clamp(280px, 30vw, 400px); height: clamp(280px, 30vw, 400px);
+    width: clamp(360px, 40vw, 520px); height: clamp(360px, 40vw, 520px);
     border-radius: 50%; border: 3px solid var(--amber); position: relative; overflow: hidden;
-    box-shadow: 0 0 0 8px rgba(200,130,42,0.12), 0 0 0 20px rgba(200,130,42,0.06), 0 40px 80px rgba(0,0,0,0.5);
+    box-shadow: 0 0 0 10px rgba(200,130,42,0.12), 0 0 0 24px rgba(200,130,42,0.06), 0 50px 100px rgba(0,0,0,0.55);
   }
-  .hero-photo-ring img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+  /* Slideshow images inside ring */
+  .hero-slide {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: center top;
+    opacity: 0;
+    transition: opacity 0.9s cubic-bezier(0.4,0,0.2,1);
+  }
+  .hero-slide.active { opacity: 1; }
+  /* Scrub bar */
+  .hero-scrub-wrap {
+    width: clamp(360px, 40vw, 520px);
+    opacity: 0; animation: fadeIn 1s 1.8s forwards;
+  }
+  .hero-scrub-meta {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 0.6rem;
+    font-family: var(--font-sans); font-size: 0.6rem; font-weight: 600;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+  }
+  .hero-scrub-track {
+    width: 100%; height: 3px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 3px; cursor: pointer; position: relative;
+    transition: height 0.2s;
+    padding: 8px 0; margin: -8px 0; box-sizing: content-box;
+  }
+  .hero-scrub-track-inner {
+    width: 100%; height: 3px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 3px; position: relative;
+    transition: height 0.2s;
+  }
+  .hero-scrub-wrap:hover .hero-scrub-track-inner { height: 5px; }
+  .hero-scrub-fill {
+    height: 100%; width: 0%;
+    background: linear-gradient(90deg, var(--amber), var(--amber-light));
+    border-radius: 3px; pointer-events: none;
+    transition: width 0.05s linear;
+  }
+  .hero-scrub-thumb {
+    width: 14px; height: 14px; border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 0 2px var(--amber), 0 2px 8px rgba(0,0,0,0.4);
+    position: absolute; top: 50%; left: 0%;
+    transform: translate(-50%, -50%);
+    cursor: grab; pointer-events: all;
+    transition: transform 0.15s, box-shadow 0.2s;
+  }
+  .hero-scrub-thumb:hover, .hero-scrub-thumb.dragging {
+    transform: translate(-50%, -50%) scale(1.35);
+    box-shadow: 0 0 0 3px var(--amber), 0 4px 12px rgba(200,130,42,0.5);
+    cursor: grabbing;
+  }
   .hero-badge {
     position: absolute; bottom: 1.5rem; right: -1.5rem;
     background: var(--amber); padding: 0.75rem 1.25rem;
@@ -352,14 +406,14 @@
   .photo-item:hover img { transform: scale(1.04); filter: grayscale(0%); }
   .photo-item-caption {
     position: absolute; bottom: 0; left: 0; right: 0;
-    padding: 0.85rem 1rem;
-    background: linear-gradient(to top, rgba(13,27,42,0.9) 0%, transparent 100%);
-    font-family: var(--font-sans); font-size: 0.65rem; font-weight: 600;
+    padding: 1rem 1rem 0.75rem;
+    background: linear-gradient(to top, rgba(13,27,42,0.97) 0%, rgba(13,27,42,0.7) 55%, transparent 100%);
+    font-family: var(--font-sans); font-size: 0.6rem; font-weight: 700;
     letter-spacing: 0.1em; text-transform: uppercase;
-    color: rgba(255,255,255,0.7);
-    opacity: 0; transition: opacity 0.3s;
+    color: rgba(255,255,255,0.9);
+    opacity: 1;
+    line-height: 1.4;
   }
-  .photo-item:hover .photo-item-caption { opacity: 1; }
   .photo-item-caption span { color: var(--amber); }
 
   /* ── PROJECTS ────────────────────────────────────── */
@@ -559,13 +613,38 @@
   }
   .modal-overlay.active .modal-box { transform: translateY(0) scale(1); }
   .modal-dark .modal-box { background: var(--dark); color: #fff; }
+  /* Modal hero image (project popups) */
+  .modal-hero {
+    margin: -3.5rem -3.5rem 2.5rem -3.5rem;
+    border-radius: 10px 10px 0 0;
+    overflow: hidden;
+    position: relative;
+    height: 300px;
+    flex-shrink: 0;
+  }
+  .modal-hero img {
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+    transition: transform 0.6s ease;
+  }
+  .modal-hero:hover img { transform: scale(1.03); }
+  .modal-hero::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(13,27,42,0.88) 0%, rgba(13,27,42,0.25) 45%, transparent 70%);
+    pointer-events: none;
+  }
+  @media (max-width: 600px) {
+    .modal-hero { margin: -2.5rem -2rem 2rem -2rem; height: 200px; }
+  }
   .modal-close {
     position: absolute; top: 1.25rem; right: 1.25rem; width: 36px; height: 36px;
-    border-radius: 50%; background: rgba(0,0,0,0.08); border: none; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.1rem; color: #666; transition: background var(--transition), color var(--transition);
+    border-radius: 50%; background: rgba(0,0,0,0.35); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; z-index: 10;
+    font-size: 1.1rem; color: #fff; transition: background var(--transition), color var(--transition);
+    backdrop-filter: blur(4px);
   }
-  .modal-dark .modal-close { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); }
+  .modal-dark .modal-close { background: rgba(0,0,0,0.45); color: rgba(255,255,255,0.8); }
   .modal-close:hover { background: var(--amber); color: #fff; }
   .modal-eyebrow { font-family: var(--font-sans); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase; color: var(--amber); margin-bottom: 0.75rem; }
   .modal-title { font-family: var(--font-disp); font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; line-height: 1; margin-bottom: 2rem; }
@@ -693,16 +772,26 @@
 
   <div class="hero-image-col">
     <div class="hero-photo-wrap">
-      <div class="hero-photo-ring">
-        <img
-          src="images/Aaron Kilburg NIBCO Commercial Sales Manger.jpg"
-          alt="Aaron Kilburg"
-          onerror="this.src='aaron-profile-pic.avif'"
-        />
+      <div class="hero-photo-ring" id="heroRing">
+        <img class="hero-slide active" id="heroImgA" src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_600,c_fill/aaron-kilburg/nibco-commercial-sales-manager" alt="Aaron Kilburg">
+        <img class="hero-slide"        id="heroImgB" alt="Aaron Kilburg">
       </div>
       <div class="hero-badge">
         <div class="hero-badge-num">9</div>
         <div class="hero-badge-label">Years with NIBCO</div>
+      </div>
+    </div>
+    <!-- Scrub bar -->
+    <div class="hero-scrub-wrap" id="heroScrubWrap">
+      <div class="hero-scrub-meta">
+        <span id="heroScrubLabel">1 / 52</span>
+        <span id="heroScrubCaption" style="color:rgba(255,255,255,0.45);font-size:0.58rem;max-width:60%;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">NIBCO Commercial Sales Manager</span>
+      </div>
+      <div class="hero-scrub-track" id="heroScrubTrack">
+        <div class="hero-scrub-track-inner">
+          <div class="hero-scrub-fill" id="heroScrubFill"></div>
+          <div class="hero-scrub-thumb" id="heroScrubThumb"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -717,7 +806,7 @@
     <div class="audio-eyebrow">Featured Listen</div>
     <div class="audio-card" id="audioCard">
       <div class="audio-glow"></div>
-      <audio id="akAudio" src="https://res.cloudinary.com/dsbllwpbh/video/upload/v1774312332/Why_Handshakes_Are_the_Ultimate_Currency_cc8dcm.mp4" preload="metadata"></audio>
+      <audio id="akAudio" src="https://res.cloudinary.com/dsbllwpbh/video/upload/q_auto/f_auto/v1775265253/Aaron_Kilburg_and_the_Infrastructure_of_Trust_cmufjb.mp4" preload="metadata"></audio>
 
       <div class="audio-top">
         <button class="audio-play-btn" id="audioPlayBtn" onclick="toggleAudio()" aria-label="Play/Pause">
@@ -725,7 +814,7 @@
           <svg class="pause-icon" id="pauseIcon" viewBox="0 0 24 24" fill="currentColor" width="26" height="26" style="display:none"><rect x="5" y="3" width="4" height="18"/><rect x="15" y="3" width="4" height="18"/></svg>
         </button>
         <div class="audio-meta">
-          <div class="audio-title">Why Handshakes Are the Ultimate Currency</div>
+          <div class="audio-title">Aaron Kilburg and the Infrastructure of Trust</div>
           <div class="audio-artist">Aaron Kilburg &nbsp;·&nbsp; <span id="audioTime">0:00</span> / <span id="audioDur">0:00</span></div>
         </div>
       </div>
@@ -962,27 +1051,27 @@
     <!-- Professional Photo Grid -->
     <div class="photo-grid animate-on-scroll delay-2" style="margin-top: 3.5rem;">
       <div class="photo-item">
-        <img src="images/Representing NIBCO in National Advertising campaign.jpg" alt="Representing NIBCO in National Advertising Campaign" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/nibco-national-advertising-campaign" alt="Representing NIBCO in National Advertising Campaign" loading="lazy">
         <div class="photo-item-caption">National <span>NIBCO Advertising</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/NIBCO Midwest Team.jpg" alt="NIBCO Midwest Team" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/nibco-midwest-team" alt="NIBCO Midwest Team" loading="lazy">
         <div class="photo-item-caption"><span>NIBCO</span> Midwest Team</div>
       </div>
       <div class="photo-item">
-        <img src="images/Introducing new NIBCO products to Chicago Plumbing Engineering Community.jpg" alt="Introducing new NIBCO products to Chicago Plumbing Engineering Community" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/nibco-products-chicago-plumbing-engineers" alt="Introducing new NIBCO products to Chicago Plumbing Engineering Community" loading="lazy">
         <div class="photo-item-caption">Chicago <span>Engineering Community</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/Engineering Partners in Chicago. ASPE president Chris Rohan and National Membership Liaison Jason McDonald._" alt="Engineering Partners in Chicago — ASPE" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/engineering-partners-chicago-aspe" alt="Engineering Partners in Chicago — ASPE" loading="lazy">
         <div class="photo-item-caption"><span>ASPE</span> Chicago Partners</div>
       </div>
       <div class="photo-item">
-        <img src="images/Being interviewed by the podcasters Tim and John, hosts of the podcast %22Appetite for Construction%22.jpg" alt="Being interviewed by podcast Appetite for Construction" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/podcast-appetite-for-construction" alt="Being interviewed by podcast Appetite for Construction" loading="lazy">
         <div class="photo-item-caption">Podcast: <span>Appetite for Construction</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/Representing NIBCO by filming programming for social media and thru industry outlets_.jpg" alt="Representing NIBCO through media" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/nibco-social-media-filming" alt="Representing NIBCO through media" loading="lazy">
         <div class="photo-item-caption">NIBCO <span>Media &amp; Content</span></div>
       </div>
     </div>
@@ -1001,7 +1090,7 @@
     <div class="projects-grid">
       <div class="project-card animate-on-scroll delay-1" onclick="openModal('modal-rush')">
         <div class="project-image">
-          <img src="images/Training at Rush Hospital expansion jobsite.jpg" alt="Rush University Medical Center Expansion" loading="lazy">
+          <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_800,h_400,c_fill/aaron-kilburg/training-rush-hospital-jobsite" alt="Rush University Medical Center Expansion" loading="lazy">
           <div class="project-overlay"><span>Deep Dive →</span></div>
         </div>
         <div class="project-body">
@@ -1014,7 +1103,7 @@
 
       <div class="project-card animate-on-scroll delay-2" onclick="openModal('modal-ryanfield')">
         <div class="project-image">
-          <img src="images/Ryan Field Jobsite Visit on Northwestern Campus.jpg" alt="Ryan Field Northwestern Football" loading="lazy">
+          <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_800,h_400,c_fill/aaron-kilburg/ryan-field-northwestern-jobsite" alt="Ryan Field Northwestern Football" loading="lazy">
           <div class="project-overlay"><span>Deep Dive →</span></div>
         </div>
         <div class="project-body">
@@ -1027,7 +1116,7 @@
 
       <div class="project-card animate-on-scroll delay-3" onclick="openModal('modal-google')">
         <div class="project-image">
-          <img src="images/Chicago Google Headquarters.jpg" alt="Google Chicago Headquarters" loading="lazy">
+          <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_800,h_400,c_fill/aaron-kilburg/chicago-google-headquarters" alt="Google Chicago Headquarters" loading="lazy">
           <div class="project-overlay"><span>Deep Dive →</span></div>
         </div>
         <div class="project-body">
@@ -1040,7 +1129,7 @@
 
       <div class="project-card animate-on-scroll delay-1" onclick="openModal('modal-mizzou')">
         <div class="project-image">
-          <img src="images/University of Missouri Faurot Field North End Zone renovation.jpg" alt="University of Missouri Faurot Field Renovation" loading="lazy">
+          <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_800,h_400,c_fill/aaron-kilburg/university-missouri-faurot-field-renovation" alt="University of Missouri Faurot Field Renovation" loading="lazy">
           <div class="project-overlay"><span>Deep Dive →</span></div>
         </div>
         <div class="project-body">
@@ -1053,7 +1142,7 @@
 
       <div class="project-card animate-on-scroll delay-2" onclick="openModal('modal-hardrock')">
         <div class="project-image">
-          <img src="images/Hard Rock Casino Jobsite visit.jpg" alt="Hard Rock Casino Jobsite" loading="lazy">
+          <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_800,h_400,c_fill/aaron-kilburg/hard-rock-casino-jobsite" alt="Hard Rock Casino Jobsite" loading="lazy">
           <div class="project-overlay"><span>Deep Dive →</span></div>
         </div>
         <div class="project-body">
@@ -1066,7 +1155,7 @@
 
       <div class="project-card animate-on-scroll delay-3" onclick="openModal('modal-softball')">
         <div class="project-image">
-          <img src="images/Partnership with A%26R Mechanical for Rex and Alice Martin softball training facility.jpg" alt="Rex and Alice Martin Softball Training Facility" loading="lazy">
+          <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_800,h_400,c_fill/aaron-kilburg/partnership-ar-mechanical-softball-facility" alt="Rex and Alice Martin Softball Training Facility" loading="lazy">
           <div class="project-overlay"><span>Deep Dive →</span></div>
         </div>
         <div class="project-body">
@@ -1165,63 +1254,63 @@
     <!-- Teaching Photo Grid -->
     <div class="photo-grid photo-grid-wide animate-on-scroll delay-2">
       <div class="photo-item">
-        <img src="images/Contractor Technical Training.jpg" alt="Contractor Technical Training" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/contractor-technical-training" alt="Contractor Technical Training" loading="lazy">
         <div class="photo-item-caption">Contractor <span>Technical Training</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/Working with Apprentices.jpg" alt="Working with Apprentices" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/working-with-apprentices" alt="Working with Apprentices" loading="lazy">
         <div class="photo-item-caption">Working with <span>Apprentices</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/Hands on training for contractor JM Brennan in Milwaukee.jpg" alt="Hands on training for contractor JM Brennan in Milwaukee" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/training-jm-brennan-milwaukee" alt="Hands on training for contractor JM Brennan in Milwaukee" loading="lazy">
         <div class="photo-item-caption">JM Brennan <span>Milwaukee</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/Local 597 apprentice training. Partnering with the next generation of pipe fitters._" alt="Local 597 Apprentice Training" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/local-597-apprentice-training" alt="Local 597 Apprentice Training" loading="lazy">
         <div class="photo-item-caption">Local 597 <span>Apprentices</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/Partner with local 597.jpg" alt="Partner with Local 597" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/partner-local-597" alt="Partner with Local 597" loading="lazy">
         <div class="photo-item-caption">Partner with <span>Local 597</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/Partner with Local 130 Plumbers Union.jpg" alt="Partner with Local 130 Plumbers Union" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/partner-local-130-plumbers-union" alt="Partner with Local 130 Plumbers Union" loading="lazy">
         <div class="photo-item-caption">Local 130 <span>Plumbers Union</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/Speaking at Wisconsin ASPE engineering event.jpg" alt="Speaking at Wisconsin ASPE engineering event" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/speaking-wisconsin-aspe" alt="Speaking at Wisconsin ASPE engineering event" loading="lazy">
         <div class="photo-item-caption">Wisconsin <span>ASPE</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/Technical Presentation to Plumbing Engineers at Wisconsin ASPE.jpg" alt="Technical Presentation at Wisconsin ASPE" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/technical-presentation-wisconsin-aspe" alt="Technical Presentation at Wisconsin ASPE" loading="lazy">
         <div class="photo-item-caption">Technical <span>Presentation</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/Providing education to the engineering community.jpg" alt="Providing education to the engineering community" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/providing-education-engineering-community" alt="Providing education to the engineering community" loading="lazy">
         <div class="photo-item-caption">Education for <span>Engineers</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/Providing CEU training at the University of Illinois.jpg" alt="CEU Training at University of Illinois" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/ceu-training-university-illinois" alt="CEU Training at University of Illinois" loading="lazy">
         <div class="photo-item-caption">CEU Training · <span>University of Illinois</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/ACR training with the University of Missouri.jpg" alt="ACR Training with University of Missouri" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/acr-training-university-of-missouri" alt="ACR Training with University of Missouri" loading="lazy">
         <div class="photo-item-caption">ACR Training · <span>University of Missouri</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/Partnership with Wisconsin ASPE VP of technical Justin Monk.jpg" alt="Partnership with Wisconsin ASPE" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/partnership-wisconsin-aspe-justin-monk" alt="Partnership with Wisconsin ASPE" loading="lazy">
         <div class="photo-item-caption">Wisconsin ASPE <span>Partnership</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/Recognition from Cleveland ASPE chapter.jpg" alt="Recognition from Cleveland ASPE Chapter" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/recognition-cleveland-aspe" alt="Recognition from Cleveland ASPE Chapter" loading="lazy">
         <div class="photo-item-caption">Cleveland <span>ASPE Recognition</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/NIBCO Apprenticeship training featured in MCAA Smart Solutions.jpg" alt="NIBCO Apprenticeship training featured in MCAA Smart Solutions" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/nibco-apprenticeship-mcaa-smart-solutions" alt="NIBCO Apprenticeship training featured in MCAA Smart Solutions" loading="lazy">
         <div class="photo-item-caption">MCAA <span>Smart Solutions</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/Partnership with University of Missouri Facilities team._" alt="Partnership with University of Missouri Facilities Team" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/partnership-university-missouri-facilities" alt="Partnership with University of Missouri Facilities Team" loading="lazy">
         <div class="photo-item-caption">Mizzou <span>Facilities Team</span></div>
       </div>
     </div>
@@ -1334,14 +1423,14 @@
           Why He Serves →
         </button>
         <div class="community-photo-wrap animate-on-scroll delay-3">
-          <img src="images/aaron-and-his-dad-gemini-quality.jpg" alt="Aaron Kilburg and his father">
+          <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_1200,c_limit/aaron-kilburg/aaron-and-his-dad" alt="Aaron Kilburg and his father">
           <div class="community-photo-caption">Aaron &amp; his father &nbsp;·&nbsp; <span>Service runs in the family</span></div>
         </div>
       </div>
 
       <div>
         <div class="board-photo-wrap animate-on-scroll">
-          <img src="images/aaron-school-board-picture.jpg" alt="Aaron Kilburg — Batavia School Board Member">
+          <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_1200,c_limit/aaron-kilburg/aaron-school-board-picture" alt="Aaron Kilburg — Batavia School Board Member">
           <div class="board-photo-caption">
             <div class="board-photo-caption-name">Aaron Kilburg</div>
             <div class="board-photo-caption-role">Board Member · BPS 101</div>
@@ -1393,79 +1482,79 @@
     <!-- Community Photo Gallery -->
     <div class="photo-grid photo-grid-wide animate-on-scroll delay-2" style="margin-top: 4rem;">
       <div class="photo-item">
-        <img src="images/BPS101 Board of Education Member.jpg" alt="BPS101 Board of Education Member" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/bps101-board-member" alt="BPS101 Board of Education Member" loading="lazy">
         <div class="photo-item-caption">BPS101 <span>Board Member</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/Champion for BPS101 students.jpg" alt="Champion for BPS101 students" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/champion-bps101-students" alt="Champion for BPS101 students" loading="lazy">
         <div class="photo-item-caption"><span>Champion</span> for BPS101 Students</div>
       </div>
       <div class="photo-item">
-        <img src="images/Hands on support for Batavia schools.jpg" alt="Hands on support for Batavia schools" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/hands-on-support-batavia-schools" alt="Hands on support for Batavia schools" loading="lazy">
         <div class="photo-item-caption">Hands-On <span>School Support</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/BPS101 Commencement.jpg" alt="BPS101 Commencement" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/bps101-commencement" alt="BPS101 Commencement" loading="lazy">
         <div class="photo-item-caption">BPS101 <span>Commencement</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/Father to BPS101 graduate Emma.jpg" alt="Father to BPS101 graduate Emma" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/father-bps101-graduate-emma" alt="Father to BPS101 graduate Emma" loading="lazy">
         <div class="photo-item-caption">Father to <span>Graduate Emma</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/Partnership with BPS101 principals Chis Milka and Nicole Prentiss.jpg" alt="Partnership with BPS101 principals" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/partnership-bps101-principals" alt="Partnership with BPS101 principals" loading="lazy">
         <div class="photo-item-caption">BPS101 <span>Principals Partnership</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/Coaching for the Inaugural Girls Flag Football Scrimmage at Bulldog Stadium_.jpg" alt="Coaching Girls Flag Football" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/coaching-girls-flag-football-bulldog-stadium" alt="Coaching Girls Flag Football" loading="lazy">
         <div class="photo-item-caption">Inaugural Girls <span>Flag Football</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/Empowering female athletes coaching girls flag football.jpg" alt="Empowering female athletes" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/empowering-female-athletes-flag-football" alt="Empowering female athletes" loading="lazy">
         <div class="photo-item-caption"><span>Empowering</span> Female Athletes</div>
       </div>
       <div class="photo-item">
-        <img src="images/Volunteer coach for Rotolo Girls Flag Football Team.jpg" alt="Volunteer coach for Rotolo Girls Flag Football" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/volunteer-coach-rotolo-flag-football" alt="Volunteer coach for Rotolo Girls Flag Football" loading="lazy">
         <div class="photo-item-caption">Volunteer <span>Flag Football Coach</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/Coaching Softball in Batavia.jpg" alt="Coaching Softball in Batavia" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/coaching-softball-batavia" alt="Coaching Softball in Batavia" loading="lazy">
         <div class="photo-item-caption">Coaching <span>Softball · Batavia</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/Speaking to Batavia Girls Scout Troop.jpg" alt="Speaking to Batavia Girls Scout Troop" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/speaking-batavia-girl-scouts" alt="Speaking to Batavia Girls Scout Troop" loading="lazy">
         <div class="photo-item-caption">Girl Scouts <span>Batavia</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/Speaking about Civics at JB Nelson Elementary.jpg" alt="Speaking about Civics at JB Nelson Elementary" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/civics-jb-nelson-elementary" alt="Speaking about Civics at JB Nelson Elementary" loading="lazy">
         <div class="photo-item-caption">Civics at <span>JB Nelson Elementary</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/Promoting Watch D.O.G.S. Program (Dads of Great Students) at JB Nelson Elementary.jpg" alt="Watch D.O.G.S. Program" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/watch-dogs-jb-nelson-elementary" alt="Watch D.O.G.S. Program" loading="lazy">
         <div class="photo-item-caption">Watch D.O.G.S. <span>JB Nelson</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/Top Dog for JB Nelson program encouraging father involvement within Batavia schools.jpg" alt="Top Dog for JB Nelson" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/top-dog-jb-nelson-father-involvement" alt="Top Dog for JB Nelson" loading="lazy">
         <div class="photo-item-caption">Top Dog <span>Father Involvement</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/Participation in Cub Scout Pinewood Derby.jpg" alt="Participation in Cub Scout Pinewood Derby" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/cub-scout-pinewood-derby" alt="Participation in Cub Scout Pinewood Derby" loading="lazy">
         <div class="photo-item-caption">Cub Scout <span>Pinewood Derby</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/Supporting the Batavia business community thru fundraising events.jpg" alt="Supporting the Batavia business community" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/supporting-batavia-business-community" alt="Supporting the Batavia business community" loading="lazy">
         <div class="photo-item-caption">Batavia <span>Business Community</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/Supporting my son Jake in the Batavia football team.jpg" alt="Supporting son Jake in Batavia football" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/supporting-son-jake-batavia-football" alt="Supporting son Jake in Batavia football" loading="lazy">
         <div class="photo-item-caption">Supporting Jake — <span>Batavia Football</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/Volunteering with my wife Kathleen as a photographer for the football team.jpg" alt="Volunteering with wife Kathleen as photographer for football team" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/volunteering-kathleen-photographer-football" alt="Volunteering with wife Kathleen as photographer for football team" loading="lazy">
         <div class="photo-item-caption">Volunteering with <span>Kathleen</span></div>
       </div>
       <div class="photo-item">
-        <img src="images/Family Man for wife Kathleen, children Emma, Jake and Lily.jpg" alt="Family Man — Kathleen, Emma, Jake and Lily" loading="lazy">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_450,c_fill/aaron-kilburg/family-kathleen-emma-jake-lily" alt="Family Man — Kathleen, Emma, Jake and Lily" loading="lazy">
         <div class="photo-item-caption">Family — <span>Kathleen, Emma, Jake &amp; Lily</span></div>
       </div>
     </div>
@@ -1676,6 +1765,9 @@
 <!-- Rush Hospital -->
 <div class="modal-overlay modal-dark" id="modal-rush">
   <div class="modal-box">
+    <div class="modal-hero">
+      <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_1200,h_600,c_fill/aaron-kilburg/training-rush-hospital-jobsite" alt="Rush University Medical Center">
+    </div>
     <button class="modal-close" onclick="closeModal('modal-rush')">✕</button>
     <div class="modal-eyebrow">Signature Project · Chicago</div>
     <h3 class="modal-title">Rush University<br>Medical Center</h3>
@@ -1692,6 +1784,9 @@
 <!-- Ryan Field -->
 <div class="modal-overlay modal-dark" id="modal-ryanfield">
   <div class="modal-box">
+    <div class="modal-hero">
+      <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_1200,h_600,c_fill/aaron-kilburg/ryan-field-northwestern-jobsite" alt="Ryan Field Northwestern">
+    </div>
     <button class="modal-close" onclick="closeModal('modal-ryanfield')">✕</button>
     <div class="modal-eyebrow">Signature Project · Evanston — Northwestern University</div>
     <h3 class="modal-title">Ryan Field —<br>Northwestern Football</h3>
@@ -1708,6 +1803,9 @@
 <!-- Google Chicago -->
 <div class="modal-overlay modal-dark" id="modal-google">
   <div class="modal-box">
+    <div class="modal-hero">
+      <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_1200,h_600,c_fill/aaron-kilburg/chicago-google-headquarters" alt="Google Chicago Headquarters">
+    </div>
     <button class="modal-close" onclick="closeModal('modal-google')">✕</button>
     <div class="modal-eyebrow">Signature Project · Chicago Loop</div>
     <h3 class="modal-title">Google's New Chicago<br>Headquarters</h3>
@@ -1723,6 +1821,9 @@
 <!-- University of Missouri -->
 <div class="modal-overlay modal-dark" id="modal-mizzou">
   <div class="modal-box">
+    <div class="modal-hero">
+      <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_1200,h_600,c_fill/aaron-kilburg/university-missouri-faurot-field-renovation" alt="Faurot Field University of Missouri">
+    </div>
     <button class="modal-close" onclick="closeModal('modal-mizzou')">✕</button>
     <div class="modal-eyebrow">Signature Project · Columbia, Missouri</div>
     <h3 class="modal-title">Faurot Field —<br>North End Zone</h3>
@@ -1739,6 +1840,9 @@
 <!-- Hard Rock Casino -->
 <div class="modal-overlay modal-dark" id="modal-hardrock">
   <div class="modal-box">
+    <div class="modal-hero">
+      <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_1200,h_600,c_fill/aaron-kilburg/hard-rock-casino-jobsite" alt="Hard Rock Casino Jobsite">
+    </div>
     <button class="modal-close" onclick="closeModal('modal-hardrock')">✕</button>
     <div class="modal-eyebrow">Signature Project · Illinois</div>
     <h3 class="modal-title">Hard Rock Casino</h3>
@@ -1754,6 +1858,9 @@
 <!-- Softball Facility -->
 <div class="modal-overlay modal-dark" id="modal-softball">
   <div class="modal-box">
+    <div class="modal-hero">
+      <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_1200,h_600,c_fill/aaron-kilburg/partnership-ar-mechanical-softball-facility" alt="Rex and Alice Martin Softball Facility">
+    </div>
     <button class="modal-close" onclick="closeModal('modal-softball')">✕</button>
     <div class="modal-eyebrow">Signature Project · University of Illinois</div>
     <h3 class="modal-title">Rex &amp; Alice Martin<br>Softball Facility</h3>
@@ -1797,7 +1904,7 @@
       <blockquote>"Washington D.C. isn't going to solve all of our problems. Some have to be solved by people in their own community."</blockquote>
 
       <div class="dad-photo-wrap">
-        <img src="images/aaron-and-his-dad-gemini-quality.jpg" alt="Aaron Kilburg and his father Dean">
+        <img src="https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_1200,c_limit/aaron-kilburg/aaron-and-his-dad" alt="Aaron Kilburg and his father Dean">
         <div class="dad-photo-caption">Aaron &amp; his father Dean &nbsp;·&nbsp; <span>A legacy of service</span></div>
       </div>
       <div class="modal-divider"></div>
@@ -1810,6 +1917,218 @@
     </div>
   </div>
 </div>
+
+<!-- ══════════════════ HERO SLIDESHOW ════════════════════ -->
+<script>
+(function() {
+  const CLD = 'https://res.cloudinary.com/dsbllwpbh/image/upload/f_auto,q_auto,w_600,h_600,c_fill/aaron-kilburg/';
+
+  const SLIDES = [
+    { slug: 'nibco-commercial-sales-manager',          label: 'NIBCO Commercial Sales Manager' },
+    { slug: 'aaron-profile-pic',                       label: 'Aaron Kilburg' },
+    { slug: 'aaron-school-board-picture',              label: 'Batavia School Board Member' },
+    { slug: 'nibco-midwest-team',                      label: 'NIBCO Midwest Team' },
+    { slug: 'nibco-national-advertising-campaign',     label: 'National Advertising Campaign' },
+    { slug: 'speaking-wisconsin-aspe',                 label: 'Speaking — Wisconsin ASPE' },
+    { slug: 'technical-presentation-wisconsin-aspe',   label: 'Technical Presentation — Wisconsin ASPE' },
+    { slug: 'providing-education-engineering-community', label: 'Educating the Engineering Community' },
+    { slug: 'ceu-training-university-illinois',        label: 'CEU Training — University of Illinois' },
+    { slug: 'acr-training-university-of-missouri',     label: 'ACR Training — University of Missouri' },
+    { slug: 'contractor-technical-training',           label: 'Contractor Technical Training' },
+    { slug: 'working-with-apprentices',                label: 'Working with Apprentices' },
+    { slug: 'training-jm-brennan-milwaukee',           label: 'Training — JM Brennan, Milwaukee' },
+    { slug: 'local-597-apprentice-training',           label: 'Local 597 Apprentice Training' },
+    { slug: 'partner-local-597',                       label: 'Partner with Local 597' },
+    { slug: 'partner-local-130-plumbers-union',        label: 'Partner with Local 130 Plumbers Union' },
+    { slug: 'nibco-apprenticeship-mcaa-smart-solutions', label: 'NIBCO Apprenticeship — MCAA Smart Solutions' },
+    { slug: 'recognition-cleveland-aspe',              label: 'Recognition — Cleveland ASPE' },
+    { slug: 'partnership-wisconsin-aspe-justin-monk',  label: 'Partnership — Wisconsin ASPE' },
+    { slug: 'engineering-partners-chicago-aspe',       label: 'Engineering Partners — Chicago ASPE' },
+    { slug: 'nibco-products-chicago-plumbing-engineers', label: 'Introducing NIBCO — Chicago Engineering' },
+    { slug: 'nibco-social-media-filming',              label: 'NIBCO Media & Content' },
+    { slug: 'podcast-appetite-for-construction',       label: 'Podcast: Appetite for Construction' },
+    { slug: 'training-rush-hospital-jobsite',          label: 'Rush Hospital Expansion Jobsite' },
+    { slug: 'ryan-field-northwestern-jobsite',         label: 'Ryan Field — Northwestern Campus' },
+    { slug: 'chicago-google-headquarters',             label: 'Google Chicago Headquarters' },
+    { slug: 'university-missouri-faurot-field-renovation', label: 'Faurot Field — University of Missouri' },
+    { slug: 'partner-university-missouri-end-zone',   label: 'University of Missouri — End Zone Renovation' },
+    { slug: 'partnership-university-missouri-facilities', label: 'University of Missouri Facilities Team' },
+    { slug: 'hard-rock-casino-jobsite',                label: 'Hard Rock Casino Jobsite' },
+    { slug: 'partnership-ar-mechanical-softball-facility', label: 'Rex & Alice Martin Softball Facility' },
+    { slug: 'champion-bps101-students',                label: 'Champion for BPS101 Students' },
+    { slug: 'bps101-board-member',                     label: 'BPS101 Board of Education Member' },
+    { slug: 'hands-on-support-batavia-schools',        label: 'Hands-On Support — Batavia Schools' },
+    { slug: 'bps101-commencement',                     label: 'BPS101 Commencement' },
+    { slug: 'father-bps101-graduate-emma',             label: 'Father to BPS101 Graduate Emma' },
+    { slug: 'partnership-bps101-principals',           label: 'Partnership with BPS101 Principals' },
+    { slug: 'coaching-girls-flag-football-bulldog-stadium', label: 'Inaugural Girls Flag Football' },
+    { slug: 'empowering-female-athletes-flag-football', label: 'Empowering Female Athletes' },
+    { slug: 'volunteer-coach-rotolo-flag-football',    label: 'Volunteer Flag Football Coach' },
+    { slug: 'coaching-softball-batavia',               label: 'Coaching Softball — Batavia' },
+    { slug: 'civics-jb-nelson-elementary',             label: 'Civics — JB Nelson Elementary' },
+    { slug: 'speaking-batavia-girl-scouts',            label: 'Batavia Girls Scout Troop' },
+    { slug: 'watch-dogs-jb-nelson-elementary',         label: 'Watch D.O.G.S. — JB Nelson' },
+    { slug: 'top-dog-jb-nelson-father-involvement',   label: 'Top Dog — Father Involvement Program' },
+    { slug: 'cub-scout-pinewood-derby',                label: 'Cub Scout Pinewood Derby' },
+    { slug: 'supporting-batavia-business-community',   label: 'Supporting Batavia Business Community' },
+    { slug: 'supporting-son-jake-batavia-football',    label: 'Supporting Jake — Batavia Football' },
+    { slug: 'volunteering-kathleen-photographer-football', label: 'Volunteering with Kathleen' },
+    { slug: 'family-kathleen-emma-jake-lily',          label: 'Family — Kathleen, Emma, Jake & Lily' },
+    { slug: 'aaron-and-his-dad',                       label: 'Aaron & His Father' },
+    { slug: 'partner-university-missouri-end-zone',    label: 'University of Missouri — End Zone' },
+  ];
+
+  const TOTAL = SLIDES.length;
+  const INTERVAL = 4000;
+
+  const imgA     = document.getElementById('heroImgA');
+  const imgB     = document.getElementById('heroImgB');
+  const fill     = document.getElementById('heroScrubFill');
+  const thumb    = document.getElementById('heroScrubThumb');
+  const track    = document.getElementById('heroScrubTrack');
+  const labelEl  = document.getElementById('heroScrubLabel');
+  const capEl    = document.getElementById('heroScrubCaption');
+
+  let idx       = 0;
+  let activeImg = imgA;
+  let inactiveImg = imgB;
+  let loadVer   = 0;
+  let timer;
+  let dragging  = false;
+
+  function updateBar(i) {
+    const pct = (i / (TOTAL - 1)) * 100;
+    fill.style.width  = pct + '%';
+    thumb.style.left  = pct + '%';
+    labelEl.textContent = (i + 1) + ' / ' + TOTAL;
+    capEl.textContent   = SLIDES[i].label;
+  }
+
+  function goTo(i, restartTimer) {
+    i = ((i % TOTAL) + TOTAL) % TOTAL;
+    idx = i;
+    updateBar(i);
+
+    const ver = ++loadVer;
+    inactiveImg.src = CLD + SLIDES[i].slug;
+
+    inactiveImg.onload = function() {
+      if (loadVer !== ver) return;
+      inactiveImg.classList.add('active');
+      activeImg.classList.remove('active');
+      [activeImg, inactiveImg] = [inactiveImg, activeImg];
+    };
+
+    // Fallback if already cached (onload won't fire)
+    if (inactiveImg.complete && inactiveImg.naturalWidth) {
+      inactiveImg.onload();
+    }
+
+    if (restartTimer !== false) {
+      clearInterval(timer);
+      timer = setInterval(() => goTo(idx + 1), INTERVAL);
+    }
+  }
+
+  // Preload next image
+  function preloadNext() {
+    const next = (idx + 1) % TOTAL;
+    const img = new Image();
+    img.src = CLD + SLIDES[next].slug;
+  }
+
+  // Auto-advance
+  timer = setInterval(() => goTo(idx + 1), INTERVAL);
+
+  // Start preloading after page settles
+  setTimeout(preloadNext, 500);
+
+  // ── Scrub interaction ──────────────────────────────────
+
+  function posToIdx(clientX) {
+    const rect = track.getBoundingClientRect();
+    const pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    return Math.round(pct * (TOTAL - 1));
+  }
+
+  track.addEventListener('click', function(e) {
+    if (!dragging) goTo(posToIdx(e.clientX));
+  });
+
+  // Mouse drag
+  thumb.addEventListener('mousedown', function(e) {
+    dragging = true;
+    thumb.classList.add('dragging');
+    e.preventDefault();
+    clearInterval(timer); // pause auto-advance while dragging
+  });
+
+  document.addEventListener('mousemove', function(e) {
+    if (!dragging) return;
+    const i = posToIdx(e.clientX);
+    if (i !== idx) {
+      // Update bar immediately; let image follow
+      idx = i;
+      updateBar(i);
+      const ver = ++loadVer;
+      inactiveImg.src = CLD + SLIDES[i].slug;
+      inactiveImg.onload = function() {
+        if (loadVer !== ver) return;
+        inactiveImg.classList.add('active');
+        activeImg.classList.remove('active');
+        [activeImg, inactiveImg] = [inactiveImg, activeImg];
+      };
+      if (inactiveImg.complete && inactiveImg.naturalWidth) inactiveImg.onload();
+    }
+  });
+
+  document.addEventListener('mouseup', function() {
+    if (!dragging) return;
+    dragging = false;
+    thumb.classList.remove('dragging');
+    // Resume auto-advance from current position
+    clearInterval(timer);
+    timer = setInterval(() => goTo(idx + 1), INTERVAL);
+  });
+
+  // Touch drag
+  thumb.addEventListener('touchstart', function(e) {
+    dragging = true;
+    thumb.classList.add('dragging');
+    e.preventDefault();
+    clearInterval(timer);
+  }, { passive: false });
+
+  document.addEventListener('touchmove', function(e) {
+    if (!dragging) return;
+    const i = posToIdx(e.touches[0].clientX);
+    if (i !== idx) {
+      idx = i;
+      updateBar(i);
+      const ver = ++loadVer;
+      inactiveImg.src = CLD + SLIDES[i].slug;
+      inactiveImg.onload = function() {
+        if (loadVer !== ver) return;
+        inactiveImg.classList.add('active');
+        activeImg.classList.remove('active');
+        [activeImg, inactiveImg] = [inactiveImg, activeImg];
+      };
+      if (inactiveImg.complete && inactiveImg.naturalWidth) inactiveImg.onload();
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchend', function() {
+    if (!dragging) return;
+    dragging = false;
+    thumb.classList.remove('dragging');
+    clearInterval(timer);
+    timer = setInterval(() => goTo(idx + 1), INTERVAL);
+  });
+
+  // Init bar
+  updateBar(0);
+})();
+</script>
 
 <!-- ═══════════════════════ SCRIPTS ════════════════════ -->
 <script>
